@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Clever | Portal</title>
+    
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/helloflygh/games/main/clever-favicon.png">
+</head>
+<body>
+
+    <div id="content-area">Loading remote content...</div>
+
+    <script>
+        (async function autoLoad() {
+            // Replace the URL below with your raw.githubusercontent.com link
+            const githubUrl = 'https://raw.githubusercontent.com/schoolhomework2026/homework_2026/refs/heads/main/homework-2-27.html';
+            const container = document.getElementById('content-area');
+
+            try {
+                const response = await fetch(githubUrl);
+                if (!response.ok) throw new Error('Failed to load external HTML');
+                
+                const html = await response.text();
+                
+                // Inject the HTML
+                container.innerHTML = html;
+
+                // Execute scripts within the injected HTML
+                const scripts = container.querySelectorAll("script");
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+            } catch (err) {
+                container.innerHTML = "Error loading content: " + err.message;
+            }
+        })();
+    </script>
+</body>
+</html>

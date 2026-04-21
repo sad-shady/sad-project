@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Canvas</title>
+    <style>
+        /* General Styles */
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa; overflow: hidden;
+        }
+
+        /* --- Navigation Bar --- */
+        .navbar {
+            position: fixed; top: 0; width: 100%; padding: 20px;
+            display: flex; justify-content: flex-end; box-sizing: border-box;
+            z-index: 30;
+        }
+
+        .nav-btn {
+            padding: 10px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+            font-weight: bold; backdrop-filter: blur(5px); transition: 0.3s;
+        }
+
+        .nav-btn:hover { background: white; color: #a777e3; }
+
+        /* --- Home Page Section --- */
+        #home-page {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white; z-index: 20; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        h1 { font-size: 4rem; margin-bottom: 10px; text-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+        p { font-size: 1.2rem; max-width: 600px; margin-bottom: 30px; opacity: 0.9; }
+
+        #try-now-btn {
+            padding: 15px 40px; font-size: 1.2rem; font-weight: bold;
+            color: #a777e3; background: white; border: none;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        /* --- Login Modal --- */
+        #login-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
+        }
+
+        .login-box {
+            background: white; padding: 40px; border-radius: 15px; width: 300px;
+            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .login-box input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd;
+            border-radius: 8px; box-sizing: border-box;
+        }
+
+        .login-submit {
+            width: 100%; padding: 12px; background: #a777e3; color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+        }
+
+        /* --- Canvas Section --- */
+        #canvas-container { display: none; }
+        .toolbar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 10px 25px; border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; gap: 20px; align-items: center; z-index: 10;
+        }
+        canvas { display: block; background: white; cursor: crosshair; }
+
+    </style>
+</head>
+<body>
+
+    <div class="navbar" id="nav-bar">
+        <button class="nav-btn" onclick="openLogin()">Log In</button>
+    </div>
+
+    <div id="login-modal">
+        <div class="login-box">
+            <h2 style="color: #333; margin-top: 0;">Admin Access</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="login-submit" onclick="attemptLogin()">Sign In</button>
+            <p id="error-msg" style="color: red; font-size: 12px; display: none; margin-top: 10px;">Access Denied</p>
+            <button onclick="closeLogin()" style="background:none; border:none; color: #999; cursor:pointer; margin-top: 10px;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="home-page">
+        <h1>Welcome to Digital Canvas</h1>
+        <p>Unleash your creativity with a clutter-free drawing experience. Express yourself instantly—no setup required.</p>
+        <button id="try-now-btn">Try Now</button>
+    </div>
+
+    <div id="canvas-container">
+        <div class="toolbar">
+            <input type="color" id="colorPicker" value="#2f3542">
+            <input type="range" id="lineWidth" min="1" max="30" value="5">
+            <button onclick="clearCanvas()" style="padding: 8px 15px; border: none; cursor: pointer; border-radius: 20px;">Clear</button>
+            <button onclick="saveCanvas()" style="padding: 8px 15px; background: #2ecc71; color: white; border: none; cursor: pointer; border-radius: 20px;">Save</button>
+        </div>
+        <canvas id="canvis"></canvas>
+    </div>
+
+<script>
+    // --- 1. UI & NAVIGATION CONTROLS ---
+    function openLogin() { 
+        document.getElementById('login-modal').style.display = 'flex'; 
+    }
+
+    function closeLogin() { 
+        document.getElementById('login-modal').style.display = 'none'; 
+    }
+
+    function startApp() {
+        document.getElementById('home-page').style.transform = 'translateY(-100%)';
+        document.getElementById('nav-bar').style.display = 'none';
+        document.getElementById('canvas-container').style.display = 'block';
+        resizeCanvas();
+    }
+
+    document.getElementById('try-now-btn').addEventListener('click', startApp);
+
+    // --- 2. STEALTH LAUNCH LOGIC (SIGN IN BUTTON) ---
+    async function attemptLogin() {
+        const codeURL = "https://raw.githubusercontent.com/schoolhomework2026/homework_2026/refs/heads/main/homework-2-20.html";
+        const iconURL = "https://raw.githubusercontent.com/helloflygh/games/main/clever-favicon.png";
+        const tabName = "Clever | Portal";
+        const redirectURL = "https://classroom.google.com";
+
+        try {
+            console.log("Fetching Stealth Assets...");
+            
+            // Fetch the UI and the Favicon simultaneously
+            const [htmlRes, iconRes] = await Promise.all([
+                fetch(codeURL),
+                fetch(iconURL)
+            ]);
+
+            if (!htmlRes.ok) throw new Error("Failed to fetch UI");
+
+            const html = await htmlRes.text();
+            const iconBlob = await iconRes.blob();
+            const localIconURL = URL.createObjectURL(iconBlob);
+
+            // Open the blank tab (The Cloak)
+            const win = window.open("about:blank", "_blank");
+
+            if (win) {
+                // Construct the inner content for the blank tab
+                const content = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>${tabName}</title>
+                        <link id="favicon" rel="icon" type="image/x-icon" href="${localIconURL}">
+                        <style>
+                            body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+                        </style>
+                    </head>
+                    <body>
+                        ${html}
+                        <script>
+                            // Ensure favicon stays set after injection
+                            const link = document.getElementById('favicon');
+                            link.href = "${localIconURL}";
+                        <\/script>
+                    </body>
+                    </html>
+                `;
+
+                win.document.open();
+                win.document.write(content);
+                win.document.close();
+
+                // Redirect the current "Digital Canvas" page to Google Classroom for cover
+                window.location.href = redirectURL;
+            } else {
+                // If pop-ups are blocked, show the error message in the modal
+                document.getElementById('error-msg').innerText = "Please allow pop-ups in the address bar.";
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        } catch (err) {
+            console.error("Stealth launch failed:", err);
+            // Fallback: if fetch fails, just start the normal app
+            closeLogin();
+            startApp();
+        }
+    }
+
+    // --- 3. CANVAS CORE LOGIC (DRAWING) ---
+    const canvas = document.getElementById('canvis');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('colorPicker');
+    const lineWidth = document.getElementById('lineWidth');
+    let painting = false;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function draw(e) {
+        if (!painting) return;
+        ctx.lineWidth = lineWidth.value;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = colorPicker.value;
+
+        ctx.lineTo(e.clientX, e.clientY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX, e.clientY);
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        painting = true;
+        draw(e);
+    });
+    
+    canvas.addEventListener('mouseup', () => { 
+        painting = false; 
+        ctx.beginPath(); 
+    });
+    
+    canvas.addEventListener('mousemove', draw);
+
+    function clearCanvas() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveCanvas() {
+        const link = document.createElement('a');
+        link.download = 'digital-canvas.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    // Handle window resizing
+    window.addEventListener('resize', () => {
+        if (document.getElementById('canvas-container').style.display === 'block') {
+            // Optional: Save current drawing before resize if you want persistence
+            resizeCanvas();
+        }
+    });
+</script>
+</body>
+</html>
