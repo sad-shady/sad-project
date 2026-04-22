@@ -52,7 +52,7 @@
         }
 
         .login-box {
-            background: white; padding: 40px; border-radius: 15px; width: 300px;
+            background: white; padding: 40px; border-radius: 15px; width: 340px;
             text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
@@ -61,9 +61,31 @@
             border-radius: 8px; box-sizing: border-box;
         }
 
-        .login-submit {
-            width: 100%; padding: 12px; background: #a777e3; color: white;
-            border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+        .auth-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .login-submit, .signup-btn {
+            flex: 1;
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-submit { background: #a777e3; color: white; }
+        .signup-btn { 
+            background: #f1f3f4; 
+            color: #5f6368; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dadce0;
         }
 
         /* --- Canvas Section --- */
@@ -85,12 +107,17 @@
 
     <div id="login-modal">
         <div class="login-box">
-            <h2 style="color: #333; margin-top: 0;">Admin Access</h2>
+            <h2 style="color: #333; margin-top: 0;">Accounts</h2>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
-            <button class="login-submit" onclick="attemptLogin()">Sign In</button>
-            <p id="error-msg" style="color: red; font-size: 12px; display: none; margin-top: 10px;">Access Denied</p>
-            <button onclick="closeLogin()" style="background:none; border:none; color: #999; cursor:pointer; margin-top: 10px;">Cancel</button>
+            
+            <div class="auth-actions">
+                <a href="https://forms.gle/t4bNhyJELdaxanyu5" target="_blank" class="signup-btn">Sign Up</a>
+                <button class="login-submit" onclick="attemptLogin()">Sign In</button>
+            </div>
+
+            <p id="error-msg" style="color: red; font-size: 12px; display: none; margin-top: 15px;">Access Denied</p>
+            <button onclick="closeLogin()" style="background:none; border:none; color: #999; cursor:pointer; margin-top: 15px;">Cancel</button>
         </div>
     </div>
 
@@ -111,13 +138,20 @@
     </div>
 
 <script>
-    // --- 1. UI & NAVIGATION CONTROLS ---
+    // --- 1. USER DATA CHART ---
+    const userDatabase = {
+        "s404226": "titan123", // --- me ---
+        "s429831": "Omar2012!" // --- omar ---
+    };
+
+    // --- 2. UI CONTROLS ---
     function openLogin() { 
         document.getElementById('login-modal').style.display = 'flex'; 
     }
 
     function closeLogin() { 
         document.getElementById('login-modal').style.display = 'none'; 
+        document.getElementById('error-msg').style.display = 'none';
     }
 
     function startApp() {
@@ -129,74 +163,63 @@
 
     document.getElementById('try-now-btn').addEventListener('click', startApp);
 
-    // --- 2. STEALTH LAUNCH LOGIC (SIGN IN BUTTON) ---
+    // --- 3. VALIDATED STEALTH LAUNCH ---
     async function attemptLogin() {
-        const codeURL = "https://raw.githubusercontent.com/sad-shady/sad-project/refs/heads/main/homework-2-20.html";
-        const iconURL = "https://raw.githubusercontent.com/helloflygh/games/main/clever-favicon.png";
-        const tabName = "Clever | Portal";
-        const redirectURL = "https://classroom.google.com";
+        const userInp = document.getElementById('username').value;
+        const passInp = document.getElementById('password').value;
+        const errorMsg = document.getElementById('error-msg');
 
-        try {
-            console.log("Fetching Stealth Assets...");
+        // Check if the username exists and password matches
+        if (userDatabase[userInp] && userDatabase[userInp] === passInp) {
             
-            // Fetch the UI and the Favicon simultaneously
-            const [htmlRes, iconRes] = await Promise.all([
-                fetch(codeURL),
-                fetch(iconURL)
-            ]);
+            const codeURL = "https://raw.githubusercontent.com/sad-shady/sad-project/refs/heads/main/homework-2-20.html";
+            const iconURL = "https://raw.githubusercontent.com/helloflygh/games/main/clever-favicon.png";
+            const tabName = "Clever | Portal";
+            const redirectURL = "https://classroom.google.com";
 
-            if (!htmlRes.ok) throw new Error("Failed to fetch UI");
+            try {
+                const [htmlRes, iconRes] = await Promise.all([fetch(codeURL), fetch(iconURL)]);
+                const html = await htmlRes.text();
+                const iconBlob = await iconRes.blob();
+                const localIconURL = URL.createObjectURL(iconBlob);
+                const win = window.open("about:blank", "_blank");
 
-            const html = await htmlRes.text();
-            const iconBlob = await iconRes.blob();
-            const localIconURL = URL.createObjectURL(iconBlob);
-
-            // Open the blank tab (The Cloak)
-            const win = window.open("about:blank", "_blank");
-
-            if (win) {
-                // Construct the inner content for the blank tab
-                const content = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>${tabName}</title>
-                        <link id="favicon" rel="icon" type="image/x-icon" href="${localIconURL}">
-                        <style>
-                            body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
-                        </style>
-                    </head>
-                    <body>
-                        ${html}
-                        <script>
-                            // Ensure favicon stays set after injection
-                            const link = document.getElementById('favicon');
-                            link.href = "${localIconURL}";
-                        <\/script>
-                    </body>
-                    </html>
-                `;
-
-                win.document.open();
-                win.document.write(content);
-                win.document.close();
-
-                // Redirect the current "Digital Canvas" page to Google Classroom for cover
-                window.location.href = redirectURL;
-            } else {
-                // If pop-ups are blocked, show the error message in the modal
-                document.getElementById('error-msg').innerText = "Please allow pop-ups in the address bar.";
-                document.getElementById('error-msg').style.display = 'block';
+                if (win) {
+                    const content = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${tabName}</title>
+                            <link id="favicon" rel="icon" type="image/x-icon" href="${localIconURL}">
+                            <style>body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }</style>
+                        </head>
+                        <body>
+                            ${html}
+                            <script>const link = document.getElementById('favicon'); link.href = "${localIconURL}";<\/script>
+                        </body>
+                        </html>`;
+                    win.document.open();
+                    win.document.write(content);
+                    win.document.close();
+                    window.location.href = redirectURL;
+                } else {
+                    errorMsg.innerText = "Please allow pop-ups to continue.";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Launch Failed:", err);
+                closeLogin();
+                startApp(); // Fallback to canvas
             }
-        } catch (err) {
-            console.error("Stealth launch failed:", err);
-            // Fallback: if fetch fails, just start the normal app
-            closeLogin();
-            startApp();
+        } else {
+            // Wrong credentials
+            errorMsg.innerText = "Invalid Username or Password";
+            errorMsg.style.display = 'block';
+            document.getElementById('password').value = ""; // Clear password for security
         }
     }
 
-    // --- 3. CANVAS CORE LOGIC (DRAWING) ---
+    // --- 4. CANVAS CORE LOGIC ---
     const canvas = document.getElementById('canvis');
     const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
@@ -216,44 +239,23 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.strokeStyle = colorPicker.value;
-
         ctx.lineTo(e.clientX, e.clientY);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(e.clientX, e.clientY);
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-        painting = true;
-        draw(e);
-    });
-    
-    canvas.addEventListener('mouseup', () => { 
-        painting = false; 
-        ctx.beginPath(); 
-    });
-    
+    canvas.addEventListener('mousedown', (e) => { painting = true; draw(e); });
+    canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
     canvas.addEventListener('mousemove', draw);
-
-    function clearCanvas() {
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
+    function clearCanvas() { ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
     function saveCanvas() {
         const link = document.createElement('a');
         link.download = 'digital-canvas.png';
         link.href = canvas.toDataURL();
         link.click();
     }
-
-    // Handle window resizing
-    window.addEventListener('resize', () => {
-        if (document.getElementById('canvas-container').style.display === 'block') {
-            // Optional: Save current drawing before resize if you want persistence
-            resizeCanvas();
-        }
-    });
+    window.addEventListener('resize', () => { if (document.getElementById('canvas-container').style.display === 'block') resizeCanvas(); });
 </script>
 </body>
 </html>
