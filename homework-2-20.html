@@ -151,6 +151,7 @@
     <nav class="sidebar">
         <div class="side-icon" onclick="changeContent('homePage')"><img src="https://raw.githubusercontent.com/helloflygh/Titanv3/main/T!tan-sidebar-logo.png"></div>
         <div class="side-icon" onclick="changeContent('gamesPage')"><img src="https://raw.githubusercontent.com/helloflygh/games/main/pngimg.com%20-%20gamepad_PNG58.png"></div>
+        <div class="side-icon" onclick="changeContent('multigamesPage')"><img src="https://raw.githubusercontent.com/sad-shady/sad-project/main/3-person-thumbnail.png"></div>
         <div class="side-icon" onclick="changeContent('soundboardPage')"><img src="https://raw.githubusercontent.com/helloflygh/games/main/soundboard-icon.png"></div>
         <div class="side-icon" onclick="changeContent('appsPage')"><img src="https://raw.githubusercontent.com/helloflygh/Titanv3/main/apps.png"></div>
         <div class="side-icon" onclick="changeContent('moviesPage')"><img src="https://raw.githubusercontent.com/sad-shady/sad-project/main/film-movie-icon.webp"></div>
@@ -247,6 +248,16 @@
             </div>
         </div>
 
+        <div id="multigamesPage" class="page-content">
+            <h1>Multiplayer Games</h1>
+            <input type="text" placeholder="Search..." class="search-bar" id="gameSearch" onkeyup="filterItems('gamesPage', 'gameSearch')">
+            <div class="grid" id="gameGrid">
+               
+                <div class="item" data-title="How to Fish" onclick="launchGame('https://raw.githubusercontent.com/wasmdotrip/wasm.rip/refs/heads/main/files/HowToFish/HowToFish.html')"><img src="https://raw.githubusercontent.com/sad-shady/sad-project/main/fishing.jpg"><div class="title">How to Fish</div></div>
+            </div>
+        </div>
+
+        
         <div id="appsPage" class="page-content">
             <h1>Apps</h1>
             <input type="text" placeholder="Search apps..." class="search-bar" id="appSearch" onkeyup="filterItems('appsPage', 'appSearch')">
